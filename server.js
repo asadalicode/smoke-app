@@ -6,7 +6,7 @@ const { Client, Environment } = require('square');
 
 const client = new Client({
   environment: Environment.Sandbox,
-  accessToken: 'EAAAELE2EK68fqrnhrHKWC7Zjpgu29trHtI4B41_GOHx_aO7gqlImIIq43dTj-Np',
+  accessToken: 'EAAAEIYxxvL05a-aAz9-I6GafUpwQa0omZxANgSQh820SkYcxcPs-HTS14RxAoMy',
 })
 const paymentsApi = client.paymentsApi;
 
@@ -24,26 +24,28 @@ app.use(bodyParser.urlencoded({
 
 
 app.post('/smokePaymentRequest', (req,res) => {
-  console.log(req.body);
   const body = {
-    sourceId: 'cnon:card-nonce-ok',
-    idempotencyKey: 'b141de17-b056-4b5b-8531-46541ea08a00',
+    sourceId: req.body.sourceId,
+    idempotencyKey: req.body.idempotencyKey,
     amountMoney: {
-      amount: 20,
+      amount: req.body.amount?req.body.amount:1,
       currency: 'USD'
+    },
+    customerId: req.body.customerId,
+    shippingAddress: {
+      addressLine1: req.body.addressLine1?req.body.addressLine1:'',
+      addressLine2: req.body.addressLine2?req.body.addressLine2:'',
+      addressLine3: req.body.addressLine3? req.body.addressLine3: 'address line3',
+      postalCode: req.body.postalCode?req.body.postalCode:'355',
+      country: req.body.country?req.body.country: 'JP'
     }
   };
 
 paymentsApi.createPayment(body).then(response => {
-  console.log(res)
   res.send(response.result);
-  db.collection('users')
-  .doc(req.body.number)
-  .collection('payments')
-  .doc(response.result.payment.id)
-  .set(response.result);
+
 }).catch(error=> {
-  console.log(error);
+   res.send(error);
 })
 })
 
